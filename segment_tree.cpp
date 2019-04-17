@@ -41,7 +41,21 @@ int _max(int a, int b) {
 	if (a > b) return a;
 	else       return b;
 }
+int initmin(int n, int s, int e) {
+	if (s == e)
+		return tree[n] = arr[s];
+	int m = (s + e) / 2;
+	tree[n] = _min(initmin(n * 2, s, m) , initmin(n * 2 + 1, m + 1, e));
+	return tree[n];
+}
 
+int initmax(int n, int s, int e) {
+	if (s == e)
+		return tree[n] = arr[s];
+	int m = (s + e) / 2;
+	tree[n] = _max(initmax(n * 2, s, m), initmax(n * 2 + 1, m + 1, e));
+	return tree[n];
+}
 int getmin(int l, int r, int n, int s, int e) {
 	if (l <= s && e <= r) return tree[n];
 	if (r < s || e < l) return INFINITE;
