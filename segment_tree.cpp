@@ -91,4 +91,93 @@ int main() {
 	printf("%d\n", s);
 	return 1;
 }
+/// sudoku
+#include <stdio.h>
+#include <string.h>
+#define SZ 9
+void solveSudoku(int r, int c);
+int sudoku[SZ][SZ] = {
+	4,0,7,5,0,0,0,0,8,
+	0,5,0,7,0,0,4,0,9,
+	0,0,6,0,0,4,0,7,0,
+	9,0,0,6,0,0,2,4,3,
+	0,4,0,9,0,3,0,8,0,
+	7,3,1,0,0,2,0,0,5,
+	0,2,0,8,0,0,7,0,0,
+	3,0,9,0,0,6,0,5,0,
+	5,0,0,0,0,7,3,0,4
+};
+
+int readOnlySudoku[SZ][SZ];
+int solutionCnt = 0;
+void initReadOnlySudoku(void) {
+	memcpy(readOnlySudoku, sudoku, sizeof(sudoku));
+}
+
+int isOK(int r, int c, int v) {
+	for (int i = 0; i < SZ; i++) {
+		if (sudoku[i][c] == v && i != r) {
+			return 0;
+		}
+	}
+	for (int i = 0; i < SZ; i++) {
+		if (sudoku[r][i] == v && i != c) {
+			return 0;
+		}
+	}
+	int region_r = r / 3;
+	int region_c = c / 3;
+	for (int i = region_r * 3; i <= region_r * 3 + 2; i++) {
+		for (int j = region_c * 3; j <= region_c * 3 + 2; j++) {
+			if (sudoku[i][j] == v && i != r && j != c) {
+				return 0;
+			}
+		}
+	}
+	return 1;
+}
+void printSolution() {
+	solutionCnt++;
+	printf("=================== Solution # %d =============\n", solutionCnt);
+	for (int i = 0; i < SZ; i++) {
+		for (int j = 0; j < SZ; j++) {
+			printf("%d ", sudoku[i][j]);
+		}
+		printf("\n");
+	}
+}
+void checkNext(int r, int c) {
+	if (r == (SZ - 1) && c == (SZ - 1)) {
+		printSolution();
+		return;
+	}
+	c++;
+	if (c == SZ) {
+		c = 0;
+		r++;
+	}
+	solveSudoku(r, c);
+}
+
+void solveSudoku(int r, int c) {
+	if (sudoku[r][c] > 0) {
+		checkNext(r, c);
+	}
+	else {
+		for (int i = 0; i < 9; i++) {
+			memcpy(&sudoku[r][c], &readOnlySudoku[r][c], sizeof(int)*SZ*SZ-sizeof(int)*(r+SZ+c));
+			if (isOK(r, c, i) == 1) {
+				sudoku[r][c] = i;
+				checkNext(r, c);
+			}
+		}
+	}
+}
+
+int main() {
+
+	initReadOnlySudoku();
+	solveSudoku(0, 0);
+	return 0;
+}
 
