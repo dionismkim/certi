@@ -182,3 +182,164 @@ int main() {
 }
 
 https://swprog.tistory.com/entry/Backtracking-%EC%95%8C%EA%B3%A0%EB%A6%AC%EC%A6%98-Sudoku-Part-1?category=610940
+
+// median value form pq
+#include <stdio.h>
+#define MAX_SIZE 100
+int minheap[MAX_SIZE];
+int minCnt = 0;
+
+int maxheap[MAX_SIZE];
+int maxCnt = 0;
+int mid;
+int minpush(int value) {
+	minheap[minCnt] = value;
+	int cur = minCnt;
+	while (cur > 0 && minheap[cur] < minheap[(cur - 1) / 2]){
+		int temp = minheap[(cur - 1) / 2];
+		minheap[(cur - 1) / 2] = minheap[cur];
+		minheap[cur] = temp;
+		cur = (cur - 1) / 2;
+	}
+	minCnt++;
+	return 1;
+}
+
+int minpop() {
+	int rtn = minheap[0];
+	minCnt--;
+	minheap[0] = minheap[minCnt];
+
+	int cur = 0;
+	while (cur * 2 + 1 < minCnt)
+	{
+		int child;
+		if (cur * 2 + 2 == minCnt)
+		{
+			child = cur * 2 + 1;
+		}
+		else
+		{
+			child = minheap[cur * 2 + 1] < minheap[cur * 2 + 2] ? cur * 2 + 1 : cur * 2 + 2;
+		}
+
+		if (minheap[cur] < minheap[child])
+		{
+			break;
+		}
+
+		int temp = minheap[cur];
+		minheap[cur] = minheap[child];
+		minheap[child] = temp;
+
+		cur = child;
+	}
+	return rtn;
+}
+
+int maxpush(int value) {
+	maxheap[maxCnt] = value;
+	int cur = maxCnt;
+	while (cur > 0 && maxheap[cur] > maxheap[(cur - 1) / 2]) {
+		int temp = maxheap[(cur - 1) / 2];
+		maxheap[(cur - 1) / 2] = maxheap[cur];
+		maxheap[cur] = temp;
+		cur = (cur - 1) / 2;
+	}
+	maxCnt++;
+	return 1;
+}
+
+int maxpop() {
+	int rtn = maxheap[0];
+	maxCnt--;
+	maxheap[0] = maxheap[maxCnt];
+
+	int cur = 0;
+	while (cur * 2 + 1 < maxCnt)
+	{
+		int child;
+		if (cur * 2 + 2 == maxCnt)
+		{
+			child = cur * 2 + 1;
+		}
+		else
+		{
+			child = maxheap[cur * 2 + 1] > maxheap[cur * 2 + 2] ? cur * 2 + 1 : cur * 2 + 2;
+		}
+
+		if (maxheap[cur] > maxheap[child])
+		{
+			break;
+		}
+
+		int temp = maxheap[cur];
+		maxheap[cur] = maxheap[child];
+		maxheap[child] = temp;
+
+		cur = child;
+	}
+	return rtn;
+}
+
+
+
+void print_pq() {
+	printf("[ ");
+	for (int i = 0; i < minCnt; i++) {
+		printf("%d ", minheap[i]);
+	}
+	printf("]");
+	printf("\n");
+	
+	printf("\t[ ");
+	for (int i = 0; i < maxCnt; i++) {
+		printf("%d ", maxheap[i]);
+	}
+	printf("]");
+	printf("\n");
+}
+
+bool check(int max, int min) {
+	if (max == min || max == min + 1) return true;
+	return false;
+}
+
+void makebal() {
+	if (check(maxCnt, minCnt)) return;
+	else {
+		while (!check(maxCnt, minCnt)) {
+			if (maxCnt > minCnt) {
+				mid = maxpop();
+
+				minpush(mid);
+			}
+			else {
+				mid = minpop();
+				maxpush(mid);
+			}
+		}
+	}
+}
+
+
+int main() {
+	minCnt = 0;
+	maxCnt = 0;
+	for (int i = 1; i < 10; i++) {
+		maxpush(i);		
+	}
+	print_pq();
+	makebal();
+	mid = maxheap[0];
+	print_pq();
+	
+	// removoe mid
+	maxpop();
+	maxpop();
+	makebal();
+	print_pq();
+
+	return 0;
+}
+
