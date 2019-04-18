@@ -181,3 +181,4 @@ int main() {
 	return 0;
 }
 
+https://swprog.tistory.com/entry/Backtracking-%EC%95%8C%EA%B3%A0%EB%A6%AC%EC%A6%98-Sudoku-Part-1?category=610940
