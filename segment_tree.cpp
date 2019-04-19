@@ -185,6 +185,8 @@ https://swprog.tistory.com/entry/Backtracking-%EC%95%8C%EA%B3%A0%EB%A6%AC%EC%A6%
 
 // median value form pq
 #include <stdio.h>
+#include <time.h>
+#include <stdlib.h>
 #define MAX_SIZE 100
 int minheap[MAX_SIZE];
 int minCnt = 0;
@@ -395,14 +397,14 @@ void balance() {
 }
 
 void print_sort() {
-	printf("[ ");
+	printf("MAX [ ");
 	for (int i = 0; i < mxCnt; i++) {
 		printf("%d ", mx[i]);
 	}
 	printf("]");
 	printf("\n");
 
-	printf("\t[ ");
+	printf("\t MIN[ ");
 	for (int i = 0; i < mnCnt; i++) {
 		printf("%d ", mn[i]);
 	}
@@ -417,7 +419,136 @@ void init() {
 	}
 }
 
+struct DATA {
+	int d;
+	int cnt;
+	DATA *prev;
+	DATA *next;
+};
+
+DATA data[MAX_SIZE];
+int dcnt;
+
+DATA minH, minT;
+DATA maxH, maxT;
+int mincnt, maxcnt;
+
+void link(DATA *pre, DATA *cur) {
+	cur->next = pre->next, pre->next->prev = cur;
+	pre->next = cur, cur->prev = pre;
+}
+
+void unlink(DATA *cur) {
+	cur->prev->next = cur->next;
+	cur->next->prev = cur->prev;
+}
+
+
+void minsort(DATA *cur) {
+	if (mincnt == 0) {
+		link(&minH, cur);
+		mincnt++;
+		return;
+	}
+	for (DATA *d = minH.next; d != &minT; d = d->next) {
+		if (cur->d < d->d) {
+			link(d, cur);
+			mincnt++;
+			return;
+		}
+		else if (d->d == cur->d) {
+			d->cnt++;
+			return;
+		}
+	}
+	link(minT.prev, cur);
+	mincnt++;
+}
+void maxsort(DATA *cur) {
+	if (maxcnt ==0) {
+		link(&maxH, cur);
+		maxcnt++;
+		return;
+	}
+	for (DATA *d = maxH.next; d != &maxT; d = d->next) {
+		if (cur->d > d->d) {
+			link(d->prev, cur);
+			maxcnt++;
+			return;
+		}
+		else if (d->d == cur->d) {
+			d->cnt++;
+			return;
+		}
+	}
+	link(maxT.prev, cur);
+	maxcnt++;
+}
+void unlink(DATA *pre, DATA *cur) {
+	cur->next = pre->next, pre->next->prev = cur;
+	pre->next = cur, cur->prev = pre;
+}
+
+void link_balance() {
+	if (check(mincnt, maxcnt)) return;
+	else {
+		while (!check(mincnt, maxcnt)) {
+			if (maxcnt > mincnt) {
+				DATA *d = maxH.next;
+				unlink(d);
+				maxcnt--;
+				minsort(d);
+								
+			}
+			else {
+				DATA *d = minT.prev;
+				unlink(d);
+				mincnt--;
+				maxsort(d);
+				
+			}
+			
+		}
+	}
+}
+
+void init_link() {
+	dcnt = maxcnt = mincnt = 0;
+	minH.prev = minT.next = 0;
+	minH.next = &minT, minT.prev = &minH;
+	maxH.prev = maxT.next = 0;
+	maxH.next = &maxT, maxT.prev = &maxH;
+	for (int i = 0; i < 10; i++) {
+		DATA *d = &data[dcnt++];
+		d->d = rand()%10+1;
+		printf("%d\n", d->d);
+		d->cnt = 0;
+		maxsort(d);
+		
+	}
+}
+
+void printlink() {
+	printf("MAX [ ");
+	for (DATA *d = maxH.next; d != &maxT; d = d->next) {
+		printf("%d ", d->d);
+	}
+	printf("]");
+	printf("\n");
+
+	printf("\t MIN[ ");
+	for (DATA *d = minH.next; d != &minT; d = d->next) {
+		printf("%d ", d->d);
+	}
+	printf("]");
+	printf("\n");
+}
+
 int main() {
+	init_link();
+	link_balance();
+	printlink();
+#if 0
 	mnCnt = mxCnt = 0;
 	init();
 	for (int i = 1; i < 20; i++) {
@@ -426,10 +557,14 @@ int main() {
 	}
 	balance();
 	print_sort();
+	mn[mxCnt] = 0;
+	mnCnt--;
+	balance();
 	print_sort();
-
-
-#if 0
+	mn[mxCnt] = 0;
+	mnCnt--;
+	balance();
+	print_sort();
 	minCnt = 0;
 	maxCnt = 0;
 	for (int i = 1; i < 10; i++) {
@@ -448,4 +583,3 @@ int main() {
 #endif
 	return 0;
 }
-
