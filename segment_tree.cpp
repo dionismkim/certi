@@ -322,8 +322,114 @@ void makebal() {
 	}
 }
 
+int mx[MAX_SIZE];
+int mxCnt;
+
+int mn[MAX_SIZE];
+int mnCnt;
+
+void max_sort() {
+	int temp;
+	int i;
+	int j;
+
+	for (i = 1; i < mxCnt+1; i++)	{
+		temp = mx[i];
+		j = i - 1;
+
+		while ((temp > mx[j]) && (j >= 0))	{
+			mx[j + 1] = mx[j];
+			j = j - 1;
+		}
+		mx[j + 1] = temp;
+	}
+}
+
+void min_sort() {
+	int temp;
+	int i;
+	int j;
+
+	for (i = 1; i < mnCnt+1; i++) {
+		temp = mn[i];
+		j = i - 1;
+
+		while ((temp < mn[j]) && (j >= 0)) {
+			mn[j + 1] = mn[j];
+			j = j - 1;
+		}
+		mn[j + 1] = temp;
+	}
+}
+
+void movetomax() {
+	mx[mxCnt] = mn[0];
+	mn[0] = 0;
+	mxCnt++;
+	mnCnt--;
+}
+
+void movetomin() {
+	mn[mnCnt] = mx[0];
+	mx[0] = 0;
+	mnCnt++;
+	mxCnt--;
+}
+
+void balance() {
+	if (check(mnCnt, mxCnt)) return;
+	else {
+		min_sort();
+		max_sort();
+		while (!check(mnCnt, mxCnt)) {
+			if (mxCnt > mnCnt) {
+				movetomin();
+			}
+			else {
+				movetomax();
+			}
+			min_sort();
+			max_sort();
+		}
+	}
+}
+
+void print_sort() {
+	printf("[ ");
+	for (int i = 0; i < mxCnt; i++) {
+		printf("%d ", mx[i]);
+	}
+	printf("]");
+	printf("\n");
+
+	printf("\t[ ");
+	for (int i = 0; i < mnCnt; i++) {
+		printf("%d ", mn[i]);
+	}
+	printf("]");
+	printf("\n");
+}
+
+void init() {
+	for (register int i = 0; i < MAX_SIZE; i++) {
+		mx[i] = 0;
+		mn[i] = 0xffffff;
+	}
+}
 
 int main() {
+	mnCnt = mxCnt = 0;
+	init();
+	for (int i = 1; i < 20; i++) {
+		mx[i] =i;
+		mxCnt++;
+	}
+	balance();
+	print_sort();
+	print_sort();
+
+
+#if 0
 	minCnt = 0;
 	maxCnt = 0;
 	for (int i = 1; i < 10; i++) {
@@ -339,7 +445,7 @@ int main() {
 	maxpop();
 	makebal();
 	print_pq();
-
+#endif
 	return 0;
 }
 
